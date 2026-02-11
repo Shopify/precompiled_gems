@@ -32,6 +32,8 @@ module PrecompiledGems
       "bindex" => "ed-precompiled_bindex",
       "msgpack" => "ed-precompiled_msgpack",
       "debug" => "ed2-precompiled_debug",
+      "bcrypt_pbkdf" => "ed-precompiled_bcrypt_pbkdf",
+      "ed25519" => "ed-precompiled_ed25519",
     }
   end
 end
