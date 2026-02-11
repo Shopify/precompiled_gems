@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "precompiled_gems/version"
-require_relative "precompiled_gems/dsl_patch"
+require_relative "precompiled_gems/patches"
 
 module PrecompiledGems
   extend self
