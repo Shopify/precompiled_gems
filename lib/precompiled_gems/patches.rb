@@ -28,9 +28,16 @@ module PrecompiledGems
       # No-op. Will figure this out later.
     end
   end
+
+  module KernelGemPatch
+    def gem(name, *args)
+      super(PrecompiledGems.takeover(name), *args)
+    end
+  end
 end
 
 Bundler::Dsl.prepend(PrecompiledGems::DslPatch)
 Bundler::CompactIndexClient.prepend(PrecompiledGems::CompactIndexClientPatch)
 Bundler::EndpointSpecification.prepend(PrecompiledGems::EndpointSpecificationPatch)
 Bundler::SharedHelpers.singleton_class.prepend(PrecompiledGems::SharedHelpersPatch)
+Kernel.prepend(PrecompiledGems::KernelGemPatch)
