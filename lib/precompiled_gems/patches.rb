@@ -2,38 +2,24 @@
 
 module PrecompiledGems
   module DslPatch
-    def initialize
-      @target_precompiled_gems = false
-
-      super
-    end
-
     def precompiled_gems!
-      @target_precompiled_gems = true
+      PrecompiledGems.enabled = true
     end
 
     def gem(name, *args)
-      if @target_precompiled_gems && PrecompiledGems.list.key?(name)
-        name = PrecompiledGems.list.fetch(name)
-      end
-
-      super
+      super(PrecompiledGems.takeover(name), *args)
     end
   end
 
   module CompactIndexClientPatch
     def info(name)
-      name = "ed-precompiled_bigdecimal" if name == "bigdecimal"
-
-      super
+      super(PrecompiledGems.takeover(name))
     end
   end
 
   module EndpointSpecificationPatch
-    def build_dependency(name, *)
-      name = "ed-precompiled_bigdecimal" if name == "bigdecimal"
-
-      super
+    def build_dependency(name, *args)
+      super(PrecompiledGems.takeover(name), *args)
     end
   end
 
