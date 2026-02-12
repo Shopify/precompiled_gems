@@ -1,43 +1,42 @@
-# PrecompiledGems
+> [!WARNING]
+>
+> This gem is experimental, use at your own risk.
 
-TODO: Delete this and the text below, and describe your gem
+### Precompiled Gems
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/precompiled_gems`. To experiment with that code, run `bin/console` for an interactive prompt.
+Running `bundle install` is slow, but not everything is the fault of Bundler. Compiling native extensions is the main bottleneck, this gem prevents the compilation of popular gems with native extensions resulting in a much faster `bundle install` for most projects.
 
-## Installation
+> [!NOTE]
+> ### Macbook Pro M4 results, running on Bundler 4.0.3 and Ruby 3.4.8.
+>
+> | Bundle install on a fresh Rails application | Without this plugin | With this plugin |
+> |---------------------------------------------|---------------------|------------------|
+> | 1st run                                     | 11.216s             |  3.991s          |
+> | 2nd run                                     | 12.654s             |  4.181s          |
+> | 3rd run                                     | 10.594s             |  3.853s          |
 
-TODO: Replace `UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG` with your gem name right after releasing it to RubyGems.org. Please do not do it earlier due to security reasons. Alternatively, replace this section with instructions to install your gem from git if you don't plan to release to RubyGems.org.
+### Installation
 
-Install the gem and add to the application's Gemfile by executing:
+At the very beginning of your Gemfile, add this snippet:
 
-```bash
-bundle add UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
+```ruby
+source "https://rubygems.org"
+
+#### Add this snippet in your Gemfile
+plugin "precompiled_gems"
+
+if Bundler::Plugin.installed?('precompiled_gems')
+  Plugin.send(:load_plugin, 'precompiled_gems')
+
+  precompiled_gems!
+end
+####
 ```
 
-If bundler is not being used to manage dependencies, install the gem by executing:
+### Usage
 
-```bash
-gem install UPDATE_WITH_YOUR_GEM_NAME_IMMEDIATELY_AFTER_RELEASE_TO_RUBYGEMS_ORG
-```
+Once you have added the above snippet in your Gemfile, you can run `bundle install` and compilation of popular gems with native extensions will no longer be required.
 
-## Usage
+### How it works
 
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/precompiled_gems. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/precompiled_gems/blob/main/CODE_OF_CONDUCT.md).
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the PrecompiledGems project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/precompiled_gems/blob/main/CODE_OF_CONDUCT.md).
+The plugin hijacks Bundler resolution and download a set of different gems with precompiled binaries. Those gems are forks of the original gem.
