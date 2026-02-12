@@ -7,13 +7,13 @@
 Running `bundle install` is slow, but not everything is the fault of Bundler. Compiling native extensions is the main bottleneck, this gem prevents the compilation of popular gems with native extensions resulting in a much faster `bundle install` for most projects.
 
 > [!NOTE]
-> ### Macbook Pro M4 results, running on Bundler 4.0.3 and Ruby 3.4.8.
+> ### Macbook Pro M4 results, running on Bundler 4.0.6 and Ruby 3.4.8.
 >
-> | Bundle install on a fresh Rails application | Without this plugin | With this plugin |
-> |---------------------------------------------|---------------------|------------------|
-> | 1st run                                     | 11.216s             |  3.991s          |
-> | 2nd run                                     | 12.654s             |  4.181s          |
-> | 3rd run                                     | 10.594s             |  3.853s          |
+> | Bundle install on a fresh Rails application | Without this plugin | With this plugin        |
+> |---------------------------------------------|---------------------|-------------------------|
+> | 1st run                                     | 11.216s             |  3.501s (3.20x faster)  |
+> | 2nd run                                     | 12.654s             |  3.388s (3.73x faster)  |
+> | 3rd run                                     | 10.594s             |  3.359s (3.20x faster)  |
 
 ### Installation
 
