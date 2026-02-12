@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "bundler"
+
 module PrecompiledGems
   module DslPatch
     def precompiled_gems!
