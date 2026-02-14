@@ -25,7 +25,7 @@ class PrecompiledGemsTest < Minitest::Test
       if Bundler::Plugin.installed?('precompiled_gems')
         Plugin.send(:load_plugin, 'precompiled_gems')
 
-        precompiled_gems!
+        use_precompiled_gems!
       end
 
       gem 'bigdecimal'
@@ -50,7 +50,7 @@ class PrecompiledGemsTest < Minitest::Test
       if Bundler::Plugin.installed?('precompiled_gems')
         Plugin.send(:load_plugin, 'precompiled_gems')
 
-        precompiled_gems!
+        use_precompiled_gems!
       end
 
       gem 'cel'
@@ -68,6 +68,32 @@ class PrecompiledGemsTest < Minitest::Test
     refute_includes(locked_specs, "bigdecimal")
   end
 
+  def test_use_custom_precompiled_gems
+    File.write("#{@tmpdir}/Gemfile", <<~RUBY)
+      source "https://rubygems.org"
+
+      plugin "precompiled_gems", path: "#{File.expand_path("..", __dir__)}"
+      if Bundler::Plugin.installed?('precompiled_gems')
+        Plugin.send(:load_plugin, 'precompiled_gems')
+
+        use_precompiled_gems!("digest-crc" => "precompiled-digest-crc")
+      end
+
+      gem 'digest-crc'
+    RUBY
+
+    Bundler.original_system(
+      { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile" },
+      "bundle install > /dev/null"
+    )
+
+    definition = Bundler::Definition.build("#{@tmpdir}/Gemfile", "#{@tmpdir}/Gemfile.lock", nil)
+    locked_deps = definition.locked_deps.keys
+
+    assert_includes(locked_deps, "precompiled-digest-crc")
+    refute_includes(locked_deps, "digest-crc")
+  end
+
   def test_activates_gem
     File.write("#{@tmpdir}/Gemfile", <<~RUBY)
       source "https://rubygems.org"
@@ -76,7 +102,7 @@ class PrecompiledGemsTest < Minitest::Test
       if Bundler::Plugin.installed?('precompiled_gems')
         Plugin.send(:load_plugin, 'precompiled_gems')
 
-        precompiled_gems!
+        use_precompiled_gems!
       end
 
       gem 'cel'

@@ -4,8 +4,9 @@ require "bundler"
 
 module PrecompiledGems
   module DslPatch
-    def precompiled_gems!
+    def use_precompiled_gems!(gems = {})
       PrecompiledGems.enabled = true
+      PrecompiledGems.gems.merge!(gems)
     end
 
     def gem(name, *args)
