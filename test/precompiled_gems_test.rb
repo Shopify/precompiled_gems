@@ -137,4 +137,31 @@ class PrecompiledGemsTest < Minitest::Test
       end
     end
   end
+
+  def test_bundle_clean
+    File.write("#{@tmpdir}/Gemfile", <<~RUBY)
+      source "https://rubygems.org"
+
+      plugin "precompiled_gems", path: "#{File.expand_path("..", __dir__)}"
+      if Bundler::Plugin.installed?('precompiled_gems')
+        Plugin.send(:load_plugin, 'precompiled_gems')
+
+        use_precompiled_gems!
+      end
+
+      gem 'rubocop'
+    RUBY
+
+    Bundler.original_system(
+      { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile" },
+      "bundle install > /dev/null"
+    )
+
+    Bundler.original_system(
+      { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile", "BUNDLE_CLEAN" => "1" },
+      "bundle install > /dev/null"
+    )
+
+    assert(File.exist?("#{@tmpdir}/ruby/3.4.0/bin/rubocop"))
+  end
 end
