@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = "precompiled_gems"
-  spec.version = "0.1.2"
+  spec.version = "0.1.3"
   spec.authors = ["Shopify"]
   spec.email = ["rails@shopify.com"]
 
