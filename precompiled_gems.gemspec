@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require_relative "lib/precompiled_gems/version"
-
 Gem::Specification.new do |spec|
   spec.name = "precompiled_gems"
-  spec.version = PrecompiledGems::VERSION
+  spec.version = "0.1.2"
   spec.authors = ["Shopify"]
   spec.email = ["rails@shopify.com"]
 
