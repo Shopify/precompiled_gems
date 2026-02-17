@@ -32,9 +32,15 @@ module PrecompiledGems
     end
   end
 
-  module KernelGemPatch
-    def gem(name, *args)
-      super(PrecompiledGems.takeover(name), *args)
+  module KernelPatch
+    def self.included(kernel)
+      kernel.class_eval do
+        def new_gem(name, *args)
+          old_gem(PrecompiledGems.takeover(name), *args)
+        end
+        alias old_gem gem
+        alias gem new_gem
+      end
     end
   end
 
@@ -46,6 +52,12 @@ module PrecompiledGems
         end
       end
     end
+
+    def replace_gem(*)
+      super
+
+      Kernel.include(KernelPatch)
+    end
   end
 end
 
@@ -54,4 +66,3 @@ Bundler::CompactIndexClient.prepend(PrecompiledGems::CompactIndexClientPatch)
 Bundler::EndpointSpecification.prepend(PrecompiledGems::EndpointSpecificationPatch)
 Bundler::SharedHelpers.singleton_class.prepend(PrecompiledGems::SharedHelpersPatch)
 Bundler::RubygemsIntegration.prepend(PrecompiledGems::RubygemsIntegrationPatch)
-Kernel.prepend(PrecompiledGems::KernelGemPatch)

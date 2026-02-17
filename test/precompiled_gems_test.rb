@@ -138,6 +138,46 @@ class PrecompiledGemsTest < Minitest::Test
     end
   end
 
+  def test_activates_gem_and_uses_ruby_doesnt_crash
+    File.write("#{@tmpdir}/Gemfile", <<~RUBY)
+      source "https://rubygems.org"
+
+      plugin "precompiled_gems", path: "#{File.expand_path("..", __dir__)}"
+      if Bundler::Plugin.installed?('precompiled_gems')
+        Plugin.send(:load_plugin, 'precompiled_gems')
+
+        use_precompiled_gems!
+      end
+
+      gem 'cel'
+    RUBY
+
+    Bundler.original_system(
+      { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile" },
+      "bundle install > /dev/null"
+    )
+
+    File.write("#{@tmpdir}/script.rb", <<~RUBY)
+      gem 'bigdecimal'
+      require 'bigdecimal'
+
+      puts $LOADED_FEATURES.grep /bigdecimal/
+    RUBY
+
+    Bundler.with_original_env do
+      out, status = Open3.capture2e(
+        { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile" },
+        "bundle exec ruby #{@tmpdir}/script.rb"
+      )
+
+      flunk("Command failed with output: #{out}") unless status.success?
+
+      out.each_line do |line|
+        assert(line.match?(%r{gems/ed-precompiled_bigdecimal-}))
+      end
+    end
+  end
+
   def test_bundle_clean
     File.write("#{@tmpdir}/Gemfile", <<~RUBY)
       source "https://rubygems.org"
