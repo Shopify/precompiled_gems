@@ -44,15 +44,15 @@ module PrecompiledGems
     end
   end
 
-  module RubygemsIntegrationPatch
-    def installed_specs
-      super.each do |spec|
-        spec.runtime_dependencies.each do |dep|
-          dep.name = PrecompiledGems.takeover(dep.name)
-        end
+  module StubSpecificationPatch
+    def runtime_dependencies
+      super.each do |dep|
+        dep.name = PrecompiledGems.takeover(dep.name)
       end
     end
+  end
 
+  module RubygemsIntegrationPatch
     def replace_gem(*)
       super
 
@@ -65,4 +65,5 @@ Bundler::Dsl.prepend(PrecompiledGems::DslPatch)
 Bundler::CompactIndexClient.prepend(PrecompiledGems::CompactIndexClientPatch)
 Bundler::EndpointSpecification.prepend(PrecompiledGems::EndpointSpecificationPatch)
 Bundler::SharedHelpers.singleton_class.prepend(PrecompiledGems::SharedHelpersPatch)
+Bundler::StubSpecification.prepend(PrecompiledGems::StubSpecificationPatch)
 Bundler::RubygemsIntegration.prepend(PrecompiledGems::RubygemsIntegrationPatch)
