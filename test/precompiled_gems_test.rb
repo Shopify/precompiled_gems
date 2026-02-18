@@ -204,4 +204,54 @@ class PrecompiledGemsTest < Minitest::Test
 
     assert(File.exist?("#{@tmpdir}/ruby/3.4.0/bin/rubocop"))
   end
+
+  def test_multiple_sources
+    File.write("#{@tmpdir}/Gemfile", <<~RUBY)
+      source "https://rubygems.org"
+
+      plugin "precompiled_gems", path: "#{File.expand_path("..", __dir__)}"
+      if Bundler::Plugin.installed?('precompiled_gems')
+        Plugin.send(:load_plugin, 'precompiled_gems')
+
+        use_precompiled_gems!
+      end
+
+      gem 'warning', "1.4.0"
+
+      source "https://gem.coop" do
+        gem "a"
+      end
+    RUBY
+
+    Bundler.original_system(
+      { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile" },
+      "bundle install > /dev/null"
+    )
+
+    File.write("#{@tmpdir}/Gemfile", <<~RUBY)
+      source "https://rubygems.org"
+
+      plugin "precompiled_gems", path: "#{File.expand_path("..", __dir__)}"
+      if Bundler::Plugin.installed?('precompiled_gems')
+        Plugin.send(:load_plugin, 'precompiled_gems')
+
+        use_precompiled_gems!
+      end
+
+      gem 'warning', "1.5.0"
+
+      source "https://gem.coop" do
+        gem "a"
+      end
+    RUBY
+
+    lockfile = File.read("#{@tmpdir}/Gemfile.lock")
+    lockfile.sub!(/(BUNDLED WITH\n\s+)(.*)/, '\14.0.1')
+    File.write("#{@tmpdir}/Gemfile.lock", lockfile)
+
+    Bundler.original_system(
+      { "BUNDLE_PATH" => @tmpdir, "BUNDLE_GEMFILE" => "#{@tmpdir}/Gemfile" },
+      "bundle install > /dev/null"
+    )
+  end
 end
