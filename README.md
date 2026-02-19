@@ -1,6 +1,7 @@
 > [!WARNING]
 >
-> This gem is experimental, use at your own risk.
+> This gem is experimental. It's currently running on a production application but
+> use use with caution.
 
 ### Precompiled Gems
 
