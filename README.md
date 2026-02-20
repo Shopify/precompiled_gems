@@ -29,7 +29,7 @@ plugin "precompiled_gems"
 if Bundler::Plugin.installed?('precompiled_gems')
   Plugin.send(:load_plugin, 'precompiled_gems')
 
-  precompiled_gems!
+  use_precompiled_gems!
 end
 ####
 ```
